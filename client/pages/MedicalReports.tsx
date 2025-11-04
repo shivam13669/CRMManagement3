@@ -118,7 +118,7 @@ export default function MedicalReports() {
   });
 
   return (
-    <PatientLayout>
+    <CustomerLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -242,6 +242,6 @@ export default function MedicalReports() {
           </CardContent>
         </Card>
       </div>
-    </PatientLayout>
+    </CustomerLayout>
   );
 }

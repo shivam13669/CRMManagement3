@@ -181,19 +181,19 @@ export default function PatientNotifications() {
 
   if (loading) {
     return (
-      <PatientLayout>
+      <CustomerLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
             <p className="text-gray-600">Loading notifications...</p>
           </div>
         </div>
-      </PatientLayout>
+      </CustomerLayout>
     );
   }
 
   return (
-    <PatientLayout>
+    <CustomerLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -427,6 +427,6 @@ export default function PatientNotifications() {
           )}
         </Tabs>
       </div>
-    </PatientLayout>
+    </CustomerLayout>
   );
 }
