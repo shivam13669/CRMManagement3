@@ -34,7 +34,8 @@ export default function SettingsPage() {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [passwordChanged, setPasswordChanged] = useState(false);
   const currentUser = authUtils.getCurrentUser();
-  const LayoutComponent = currentUser?.role === "customer" ? CustomerLayout : Layout;
+  const LayoutComponent =
+    currentUser?.role === "customer" ? CustomerLayout : Layout;
 
   const handlePasswordChangeSuccess = () => {
     setPasswordChanged(true);

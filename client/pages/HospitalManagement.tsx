@@ -334,7 +334,10 @@ export default function HospitalManagement() {
         return;
       }
       if (formData.pin_code && !/^\d{6}$/.test(formData.pin_code)) {
-        toast({ title: "Enter a valid 6-digit PIN code", variant: "destructive" });
+        toast({
+          title: "Enter a valid 6-digit PIN code",
+          variant: "destructive",
+        });
         return;
       }
     }
@@ -839,7 +842,9 @@ export default function HospitalManagement() {
                           required={!editingHospitalId}
                           value={formData.pin_code}
                           onChange={(e) => {
-                            const digits = e.target.value.replace(/\D/g, "").slice(0, 6);
+                            const digits = e.target.value
+                              .replace(/\D/g, "")
+                              .slice(0, 6);
                             setFormData((p) => ({
                               ...p,
                               pin_code: digits,
