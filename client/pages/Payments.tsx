@@ -127,7 +127,7 @@ export default function Payments() {
     .reduce((sum, p) => sum + p.amount, 0);
 
   return (
-    <PatientLayout>
+    <CustomerLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -401,6 +401,6 @@ export default function Payments() {
           </Card>
         </div>
       </div>
-    </PatientLayout>
+    </CustomerLayout>
   );
 }

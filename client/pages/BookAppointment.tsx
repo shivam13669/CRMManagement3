@@ -85,7 +85,7 @@ export default function BookAppointment() {
   const selectedDoctor = doctors.find((doc) => doc.id === formData.doctor);
 
   return (
-    <PatientLayout>
+    <CustomerLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -333,6 +333,6 @@ export default function BookAppointment() {
           </div>
         </div>
       </div>
-    </PatientLayout>
+    </CustomerLayout>
   );
 }

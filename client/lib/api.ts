@@ -38,17 +38,41 @@ async function apiRequest<T>(
     let data;
     try {
       // Get the response text first, then try to parse it
-      const text = await response.text();
+      let text = "";
+      try {
+        text = await response.text();
+      } catch (readError) {
+        // If response body was already read, try using json() as fallback
+        if (
+          readError instanceof TypeError &&
+          readError.message.includes("body stream")
+        ) {
+          try {
+            data = await response.json();
+          } catch {
+            // Both text and json failed, return error
+            return {
+              error: !response.ok
+                ? `Request failed with status ${response.status}`
+                : "Failed to read response body",
+            };
+          }
+        } else {
+          throw readError;
+        }
+      }
 
-      if (!text) {
-        data = { message: "No response content" };
-      } else {
-        // Try to parse as JSON, fallback to text
-        try {
-          data = JSON.parse(text);
-        } catch {
-          // If JSON parsing fails, treat as plain text
-          data = { message: text };
+      if (!data) {
+        if (!text) {
+          data = { message: "No response content" };
+        } else {
+          // Try to parse as JSON, fallback to text
+          try {
+            data = JSON.parse(text);
+          } catch {
+            // If JSON parsing fails, treat as plain text
+            data = { message: text };
+          }
         }
       }
     } catch (parseError) {

@@ -144,16 +144,16 @@ export default function PatientProfile() {
 
   if (loading) {
     return (
-      <PatientLayout>
+      <CustomerLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
         </div>
-      </PatientLayout>
+      </CustomerLayout>
     );
   }
 
   return (
-    <PatientLayout>
+    <CustomerLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -944,6 +944,6 @@ export default function PatientProfile() {
           </CardContent>
         </Card>
       </div>
-    </PatientLayout>
+    </CustomerLayout>
   );
 }

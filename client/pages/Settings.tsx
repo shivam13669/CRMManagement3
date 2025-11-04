@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Layout } from "../components/Layout";
+import { CustomerLayout } from "../components/CustomerLayout";
 import { ChangePassword } from "../components/ChangePassword";
 import {
   Card,
@@ -33,6 +34,8 @@ export default function SettingsPage() {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [passwordChanged, setPasswordChanged] = useState(false);
   const currentUser = authUtils.getCurrentUser();
+  const LayoutComponent =
+    currentUser?.role === "customer" ? CustomerLayout : Layout;
 
   const handlePasswordChangeSuccess = () => {
     setPasswordChanged(true);
@@ -75,7 +78,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <Layout>
+    <LayoutComponent>
       <div className="space-y-6">
         {/* Page header */}
         <div className="flex items-center justify-between">
@@ -289,6 +292,6 @@ export default function SettingsPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </LayoutComponent>
   );
 }
