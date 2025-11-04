@@ -409,8 +409,14 @@ export const authenticateToken: RequestHandler = (req, res, next) => {
         });
       }
 
-      // Add user info to request object
-      (req as any).user = decoded;
+      // Add user info to request object, ensuring role is always present
+      // Use role from token if available, otherwise fetch from database
+      (req as any).user = {
+        userId: decoded.userId || user.id,
+        email: decoded.email,
+        role: decoded.role || user.role,
+        full_name: decoded.full_name || user.full_name,
+      };
       next();
     } catch (dbError) {
       console.error("Database error in auth middleware:", dbError);
