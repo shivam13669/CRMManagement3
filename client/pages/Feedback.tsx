@@ -433,7 +433,7 @@ export default function Feedback() {
   };
 
   return (
-    <PatientLayout>
+    <CustomerLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -998,6 +998,6 @@ export default function Feedback() {
           </Card>
         )}
       </div>
-    </PatientLayout>
+    </CustomerLayout>
   );
 }
