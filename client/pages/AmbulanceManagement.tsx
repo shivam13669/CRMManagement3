@@ -46,20 +46,29 @@ import {
 
 interface AmbulanceRequest {
   id: number;
+  customer_user_id?: number;
   pickup_address: string;
   destination_address: string;
   emergency_type: string;
-  patient_condition: string;
-  contact_number: string;
+  // Patient details filled in the request form
+  patient_name?: string | null;
+  patient_email?: string | null;
+  patient_phone?: string | null;
+  patient_age?: number | string | null;
+  patient_gender?: string | null;
+  patient_condition?: string | null;
+  contact_number?: string | null;
   status: string;
   priority: string;
-  notes: string;
+  notes?: string | null;
   created_at: string;
-  patient_name: string;
-  patient_email: string;
-  patient_phone: string;
-  assigned_staff_name: string;
+  // Assigned staff
+  assigned_staff_name?: string;
   assigned_staff_phone?: string;
+  // Customer account info (joined from users table)
+  customer_name?: string | null;
+  customer_email?: string | null;
+  customer_phone?: string | null;
 }
 
 export default function AmbulanceManagement() {
