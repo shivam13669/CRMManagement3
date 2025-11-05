@@ -41,6 +41,9 @@ export default function RequestAmbulance() {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
 
   const emergencyTypes = [
     "Heart Attack",
