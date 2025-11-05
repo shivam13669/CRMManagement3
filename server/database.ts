@@ -209,11 +209,26 @@ function createTables(): void {
       if (tableInfo.length > 0) {
         const cols = tableInfo[0].values.map((r) => r[1]);
         const requiredCols = [
-          { name: 'patient_name', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_name TEXT" },
-          { name: 'patient_age', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_age INTEGER" },
-          { name: 'patient_gender', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_gender TEXT" },
-          { name: 'patient_email', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_email TEXT" },
-          { name: 'patient_phone', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_phone TEXT" },
+          {
+            name: "patient_name",
+            sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_name TEXT",
+          },
+          {
+            name: "patient_age",
+            sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_age INTEGER",
+          },
+          {
+            name: "patient_gender",
+            sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_gender TEXT",
+          },
+          {
+            name: "patient_email",
+            sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_email TEXT",
+          },
+          {
+            name: "patient_phone",
+            sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_phone TEXT",
+          },
         ];
 
         requiredCols.forEach((col) => {
@@ -228,7 +243,7 @@ function createTables(): void {
         });
       }
     } catch (err) {
-      console.error('Error while ensuring ambulance_requests columns:', err);
+      console.error("Error while ensuring ambulance_requests columns:", err);
     }
 
     // Pending registrations table - for doctor/staff approval

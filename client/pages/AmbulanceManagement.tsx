@@ -621,7 +621,8 @@ export default function AmbulanceManagement() {
                       </div>
 
                       {/* Age & Gender */}
-                      {(selectedRequest.patient_age || selectedRequest.patient_gender) && (
+                      {(selectedRequest.patient_age ||
+                        selectedRequest.patient_gender) && (
                         <div>
                           {selectedRequest.patient_age && (
                             <div>
