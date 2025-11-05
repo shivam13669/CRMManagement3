@@ -41,6 +41,9 @@ export default function RequestAmbulance() {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
 
   const emergencyTypes = [
     "Heart Attack",
@@ -54,10 +57,67 @@ export default function RequestAmbulance() {
     "Other Medical Emergency",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    // Here you would send to backend and dispatch ambulance
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        setError("You must be logged in to request an ambulance");
+        setIsLoading(false);
+        return;
+      }
+
+      // Validate required fields
+      if (
+        !formData.emergencyType ||
+        !formData.contactNumber ||
+        !formData.address ||
+        !formData.description
+      ) {
+        setError("Please fill in all required fields");
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetch("/api/ambulance", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          emergency_type: formData.emergencyType,
+          contact_number: formData.contactNumber,
+          pickup_address: formData.address,
+          destination_address: formData.landmark || "Not specified",
+          customer_condition: formData.description,
+          priority: formData.urgencyLevel === "high" ? "high" : "normal",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || "Failed to create ambulance request",
+        );
+      }
+
+      const data = await response.json();
+      setRequestId(
+        data.requestId?.toString() || `AMB-${Date.now().toString().slice(-6)}`,
+      );
+      setIsSubmitted(true);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      console.error("Error submitting ambulance request:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSubmitted) {
@@ -82,7 +142,9 @@ export default function RequestAmbulance() {
                   <div>
                     <span className="text-sm text-gray-600">Request ID:</span>
                     <div className="font-bold">
-                      AMB-{Date.now().toString().slice(-6)}
+                      {requestId
+                        ? `AMB-${requestId}`
+                        : `AMB-${Date.now().toString().slice(-6)}`}
                     </div>
                   </div>
                   <div>
@@ -153,6 +215,15 @@ export default function RequestAmbulance() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg flex items-start space-x-3">
+                    <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold">Error</h3>
+                      <p className="text-sm mt-1">{error}</p>
+                    </div>
+                  </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <Label htmlFor="emergencyType">Type of Emergency</Label>
@@ -324,9 +395,19 @@ export default function RequestAmbulance() {
                     className="w-full"
                     size="lg"
                     variant="destructive"
+                    disabled={isLoading}
                   >
-                    <Truck className="w-5 h-5 mr-2" />
-                    Request Emergency Ambulance
+                    {isLoading ? (
+                      <>
+                        <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Requesting...
+                      </>
+                    ) : (
+                      <>
+                        <Truck className="w-5 h-5 mr-2" />
+                        Request Emergency Ambulance
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
