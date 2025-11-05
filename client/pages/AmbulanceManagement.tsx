@@ -365,7 +365,7 @@ export default function AmbulanceManagement() {
           </CardContent>
         </Card>
 
-        {/* Requests List */}
+        {/* Requests List - Grid of Boxes */}
         {filteredRequests.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
@@ -374,173 +374,308 @@ export default function AmbulanceManagement() {
                 {requests.length === 0 ? "No Ambulance Requests" : "No Matching Requests"}
               </h3>
               <p className="text-gray-600">
-                {requests.length === 0 
-                  ? "No ambulance requests have been submitted yet." 
+                {requests.length === 0
+                  ? "No ambulance requests have been submitted yet."
                   : "No requests match your current filters."}
               </p>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredRequests.map((request) => (
-              <Card key={request.id} className="border-l-4 border-l-red-500">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {getStatusIcon(request.status)}
-                      <div>
-                        <CardTitle className="text-lg">
-                          Request #{request.id} - {request.emergency_type}
-                        </CardTitle>
-                        <CardDescription>
-                          {formatDateTime(request.created_at)} • {getTimeAgo(request.created_at)}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
+              <div
+                key={request.id}
+                onClick={() => {
+                  setSelectedRequest(request);
+                  setModalOpen(true);
+                }}
+                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
+              >
+                <div className="mb-3">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900">
+                      Request #{request.id}
+                    </h3>
+                    <div className="flex gap-2">
                       {getPriorityBadge(request.priority)}
                       {getStatusBadge(request.status)}
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Patient Information */}
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Users className="w-4 h-4 text-blue-600" />
-                      <span className="font-medium text-blue-900">Patient Information</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <span className="font-medium text-blue-800">Name: </span>
-                        <span className="text-blue-700">{request.patient_name}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-blue-800">Email: </span>
-                        <span className="text-blue-700">{request.patient_email}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-blue-800">Phone: </span>
-                        <span className="text-blue-700">{request.patient_phone}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-blue-800">Contact: </span>
-                        <span className="text-blue-700">{request.contact_number}</span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-6 px-2 text-xs ml-2"
-                          onClick={() => window.open(`tel:${request.contact_number}`)}
-                        >
-                          Call
-                        </Button>
-                      </div>
-                    </div>
+                  <p className="text-sm text-gray-600">
+                    {request.emergency_type}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {getTimeAgo(request.created_at)}
+                  </p>
+                </div>
+
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <Users className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                    <span className="text-gray-700 truncate">
+                      {request.patient_name}
+                    </span>
                   </div>
 
-                  {/* Emergency Details */}
-                  {request.patient_condition && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <FileText className="w-4 h-4 text-gray-600" />
-                        <span className="font-medium text-gray-900">Patient Condition</span>
-                      </div>
-                      <p className="text-gray-700 text-sm">{request.patient_condition}</p>
-                    </div>
-                  )}
-
-                  {/* Pickup Address */}
-                  <div className="flex items-start space-x-3">
-                    <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-gray-900">Pickup Address</div>
-                      <div className="text-gray-600 text-sm">{request.pickup_address}</div>
-                    </div>
+                  <div className="flex items-center space-x-2">
+                    <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                    <span className="text-gray-700">{request.contact_number}</span>
                   </div>
 
-                  {/* Destination (if available) */}
-                  {request.destination_address && (
-                    <div className="flex items-start space-x-3">
-                      <MapPin className="w-4 h-4 text-blue-500 mt-0.5" />
-                      <div>
-                        <div className="font-medium text-gray-900">Destination</div>
-                        <div className="text-gray-600 text-sm">{request.destination_address}</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Assigned Staff (if available) */}
-                  {request.assigned_staff_name && (
-                    <>
-                      <Separator />
-                      <div className="bg-green-50 p-3 rounded-lg">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <User className="w-4 h-4 text-green-600" />
-                          <span className="font-medium text-green-900">Assigned Staff</span>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
-                            <span className="font-medium text-green-800">Name: </span>
-                            <span className="text-green-700">{request.assigned_staff_name}</span>
-                          </div>
-                          {request.assigned_staff_phone && (
-                            <div>
-                              <span className="font-medium text-green-800">Phone: </span>
-                              <span className="text-green-700">{request.assigned_staff_phone}</span>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-6 px-2 text-xs ml-2"
-                                onClick={() => window.open(`tel:${request.assigned_staff_phone}`)}
-                              >
-                                Call
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Notes (if available) */}
-                  {request.notes && (
-                    <>
-                      <Separator />
-                      <div className="bg-gray-50 p-3 rounded-lg">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <FileText className="w-4 h-4 text-gray-600" />
-                          <span className="font-medium text-gray-900">Staff Notes</span>
-                        </div>
-                        <p className="text-gray-700 text-sm">{request.notes}</p>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Status Progress */}
-                  <div className="mt-4">
-                    <div className="flex items-center space-x-4">
-                      <div className={`flex items-center space-x-2 ${['pending', 'assigned', 'on_the_way', 'completed'].includes(request.status) ? 'text-blue-600' : 'text-gray-400'}`}>
-                        <div className={`w-2 h-2 rounded-full ${request.status === 'pending' || request.status === 'assigned' || request.status === 'on_the_way' || request.status === 'completed' ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-                        <span className="text-xs font-medium">Requested</span>
-                      </div>
-                      <div className={`flex items-center space-x-2 ${['assigned', 'on_the_way', 'completed'].includes(request.status) ? 'text-blue-600' : 'text-gray-400'}`}>
-                        <div className={`w-2 h-2 rounded-full ${request.status === 'assigned' || request.status === 'on_the_way' || request.status === 'completed' ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-                        <span className="text-xs font-medium">Assigned</span>
-                      </div>
-                      <div className={`flex items-center space-x-2 ${['on_the_way', 'completed'].includes(request.status) ? 'text-orange-600' : 'text-gray-400'}`}>
-                        <div className={`w-2 h-2 rounded-full ${request.status === 'on_the_way' || request.status === 'completed' ? 'bg-orange-600' : 'bg-gray-300'}`}></div>
-                        <span className="text-xs font-medium">On The Way</span>
-                      </div>
-                      <div className={`flex items-center space-x-2 ${request.status === 'completed' ? 'text-green-600' : 'text-gray-400'}`}>
-                        <div className={`w-2 h-2 rounded-full ${request.status === 'completed' ? 'bg-green-600' : 'bg-gray-300'}`}></div>
-                        <span className="text-xs font-medium">Completed</span>
-                      </div>
-                    </div>
+                  <div className="flex items-start space-x-2">
+                    <MapPin className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-600 line-clamp-2">
+                      {request.pickup_address}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">
+                    {formatDateTime(request.created_at)}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
+        )}
+
+        {/* Modal for Request Details */}
+        {modalOpen && selectedRequest && (
+          <>
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 z-40"
+              onClick={() => {
+                setModalOpen(false);
+                setSelectedRequest(null);
+              }}
+            />
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Request Details
+                </h2>
+                <button
+                  onClick={() => {
+                    setModalOpen(false);
+                    setSelectedRequest(null);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Header Info */}
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-900 mb-2">
+                    Request #{selectedRequest.id} - {selectedRequest.emergency_type}
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    {getStatusIcon(selectedRequest.status)}
+                    <span className="text-gray-600">
+                      {formatDateTime(selectedRequest.created_at)}
+                    </span>
+                    <span className="text-gray-500 text-sm">•</span>
+                    <span className="text-gray-600">
+                      {getTimeAgo(selectedRequest.created_at)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    {getPriorityBadge(selectedRequest.priority)}
+                    {getStatusBadge(selectedRequest.status)}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Patient Information */}
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Users className="w-5 h-5 text-blue-600" />
+                    <span className="font-semibold text-blue-900">
+                      Patient Information
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium text-blue-800">Name: </span>
+                      <span className="text-blue-700">{selectedRequest.patient_name}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-blue-800">Email: </span>
+                      <span className="text-blue-700">{selectedRequest.patient_email}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-blue-800">Phone: </span>
+                      <span className="text-blue-700">{selectedRequest.patient_phone}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-blue-800">Contact: </span>
+                      <span className="text-blue-700">{selectedRequest.contact_number}</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 px-2 text-xs ml-2"
+                        onClick={() =>
+                          window.open(`tel:${selectedRequest.contact_number}`)
+                        }
+                      >
+                        Call
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Patient Condition */}
+                {selectedRequest.patient_condition && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <FileText className="w-5 h-5 text-gray-600" />
+                      <span className="font-semibold text-gray-900">
+                        Patient Condition
+                      </span>
+                    </div>
+                    <p className="text-gray-700">{selectedRequest.patient_condition}</p>
+                  </div>
+                )}
+
+                {/* Location Info */}
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-1">
+                      <MapPin className="w-4 h-4 text-gray-500" />
+                      <span className="font-medium text-gray-900">
+                        Pickup Address
+                      </span>
+                    </div>
+                    <p className="text-gray-600 ml-6">
+                      {selectedRequest.pickup_address}
+                    </p>
+                  </div>
+
+                  {selectedRequest.destination_address && (
+                    <div>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <MapPin className="w-4 h-4 text-blue-500" />
+                        <span className="font-medium text-gray-900">
+                          Destination
+                        </span>
+                      </div>
+                      <p className="text-gray-600 ml-6">
+                        {selectedRequest.destination_address}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Assigned Staff */}
+                {selectedRequest.assigned_staff_name && (
+                  <>
+                    <Separator />
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="flex items-center space-x-2 mb-3">
+                        <User className="w-5 h-5 text-green-600" />
+                        <span className="font-semibold text-green-900">
+                          Assigned Staff
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        <div>
+                          <span className="font-medium text-green-800">
+                            Name:{" "}
+                          </span>
+                          <span className="text-green-700">
+                            {selectedRequest.assigned_staff_name}
+                          </span>
+                        </div>
+                        {selectedRequest.assigned_staff_phone && (
+                          <div>
+                            <span className="font-medium text-green-800">
+                              Phone:{" "}
+                            </span>
+                            <span className="text-green-700">
+                              {selectedRequest.assigned_staff_phone}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 px-2 text-xs ml-2"
+                              onClick={() =>
+                                window.open(
+                                  `tel:${selectedRequest.assigned_staff_phone}`,
+                                )
+                              }
+                            >
+                              Call
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Notes */}
+                {selectedRequest.notes && (
+                  <>
+                    <Separator />
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <FileText className="w-5 h-5 text-gray-600" />
+                        <span className="font-semibold text-gray-900">
+                          Staff Notes
+                        </span>
+                      </div>
+                      <p className="text-gray-700">{selectedRequest.notes}</p>
+                    </div>
+                  </>
+                )}
+
+                {/* Status Progress */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <span className="text-sm font-medium text-gray-900 block mb-3">
+                    Status Progress
+                  </span>
+                  <div className="flex items-center space-x-4">
+                    <div
+                      className={`flex items-center space-x-2 ${["pending", "assigned", "on_the_way", "completed"].includes(selectedRequest.status) ? "text-blue-600" : "text-gray-400"}`}
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full ${selectedRequest.status === "pending" || selectedRequest.status === "assigned" || selectedRequest.status === "on_the_way" || selectedRequest.status === "completed" ? "bg-blue-600" : "bg-gray-300"}`}
+                      ></div>
+                      <span className="text-xs font-medium">Requested</span>
+                    </div>
+                    <div
+                      className={`flex items-center space-x-2 ${["assigned", "on_the_way", "completed"].includes(selectedRequest.status) ? "text-blue-600" : "text-gray-400"}`}
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full ${selectedRequest.status === "assigned" || selectedRequest.status === "on_the_way" || selectedRequest.status === "completed" ? "bg-blue-600" : "bg-gray-300"}`}
+                      ></div>
+                      <span className="text-xs font-medium">Assigned</span>
+                    </div>
+                    <div
+                      className={`flex items-center space-x-2 ${["on_the_way", "completed"].includes(selectedRequest.status) ? "text-orange-600" : "text-gray-400"}`}
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full ${selectedRequest.status === "on_the_way" || selectedRequest.status === "completed" ? "bg-orange-600" : "bg-gray-300"}`}
+                      ></div>
+                      <span className="text-xs font-medium">On The Way</span>
+                    </div>
+                    <div
+                      className={`flex items-center space-x-2 ${selectedRequest.status === "completed" ? "text-green-600" : "text-gray-400"}`}
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full ${selectedRequest.status === "completed" ? "bg-green-600" : "bg-gray-300"}`}
+                      ></div>
+                      <span className="text-xs font-medium">Completed</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </Layout>
