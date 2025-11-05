@@ -34,6 +34,7 @@ export default function RequestAmbulance() {
     patientAge: "",
     patientGender: "",
     contactNumber: "",
+    email: "",
     address: "",
     landmark: "",
     description: "",
@@ -91,6 +92,7 @@ export default function RequestAmbulance() {
         body: JSON.stringify({
           emergency_type: formData.emergencyType,
           contact_number: formData.contactNumber,
+          customer_email: formData.email || undefined,
           pickup_address: formData.address,
           destination_address: formData.landmark || "Not specified",
           customer_condition: formData.description,
@@ -333,6 +335,23 @@ export default function RequestAmbulance() {
                         }));
                       }}
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
+                      className="mt-1"
+                      placeholder="you@example.com"
                     />
                   </div>
 
