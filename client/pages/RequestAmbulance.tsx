@@ -57,10 +57,62 @@ export default function RequestAmbulance() {
     "Other Medical Emergency",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    // Here you would send to backend and dispatch ambulance
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        setError("You must be logged in to request an ambulance");
+        setIsLoading(false);
+        return;
+      }
+
+      // Validate required fields
+      if (
+        !formData.emergencyType ||
+        !formData.contactNumber ||
+        !formData.address ||
+        !formData.description
+      ) {
+        setError("Please fill in all required fields");
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetch("/api/ambulance", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          emergency_type: formData.emergencyType,
+          contact_number: formData.contactNumber,
+          pickup_address: formData.address,
+          destination_address: formData.landmark || "Not specified",
+          customer_condition: formData.description,
+          priority: formData.urgencyLevel === "high" ? "high" : "normal",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create ambulance request");
+      }
+
+      const data = await response.json();
+      setRequestId(data.requestId?.toString() || `AMB-${Date.now().toString().slice(-6)}`);
+      setIsSubmitted(true);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      console.error("Error submitting ambulance request:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSubmitted) {
