@@ -62,6 +62,8 @@ export default function AmbulanceManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
+  const [selectedRequest, setSelectedRequest] = useState<AmbulanceRequest | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const fetchRequests = async (showRefreshing = false) => {
     try {
