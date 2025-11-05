@@ -34,6 +34,7 @@ export default function RequestAmbulance() {
     patientAge: "",
     patientGender: "",
     contactNumber: "",
+    email: "",
     address: "",
     landmark: "",
     description: "",
