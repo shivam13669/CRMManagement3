@@ -54,29 +54,128 @@ export function HospitalLayout({ children }: HospitalLayoutProps) {
   const hospitalName = localStorage.getItem("hospitalName") || "Hospital";
   const userName = localStorage.getItem("userName") || "Administrator";
 
-  useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
+  // Fetch notifications from API
   const fetchNotifications = async () => {
     try {
       setNotificationsLoading(true);
       const token = localStorage.getItem("token");
+      if (!token) return;
+
       const response = await fetch("/api/notifications", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);
-        setUnreadCount(data.notifications?.filter((n: any) => n.unread).length || 0);
+        setUnreadCount(data.unreadCount || 0);
+      } else {
+        console.error("Failed to fetch notifications:", response.status);
       }
     } catch (error) {
-      console.error("Failed to fetch notifications:", error);
+      console.error("Error fetching notifications:", error);
     } finally {
       setNotificationsLoading(false);
+    }
+  };
+
+  // Fetch notifications on component mount and when notifications panel opens
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  // Refresh notifications when panel opens
+  useEffect(() => {
+    if (notificationsOpen) {
+      fetchNotifications();
+    }
+  }, [notificationsOpen]);
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "appointment":
+        return <Calendar className="w-4 h-4 text-blue-600" />;
+      case "report":
+        return <FileText className="w-4 h-4 text-green-600" />;
+      case "feedback":
+        return <MessageSquare className="w-4 h-4 text-purple-600" />;
+      case "ambulance":
+        return <Truck className="w-4 h-4 text-orange-600" />;
+      default:
+        return <Bell className="w-4 h-4 text-gray-600" />;
+    }
+  };
+
+  // Handle notification click
+  const handleNotificationClick = async (notification: Notification) => {
+    try {
+      // Mark notification as read if it's unread
+      if (notification.unread) {
+        const token = localStorage.getItem("token");
+        if (token) {
+          await fetch(`/api/notifications/${notification.id}/read`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          // Update local state
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.id === notification.id ? { ...n, unread: false } : n,
+            ),
+          );
+          setUnreadCount((prev) => Math.max(0, prev - 1));
+        }
+      }
+
+      // Navigate to relevant page based on notification type
+      setNotificationsOpen(false);
+
+      switch (notification.type) {
+        case "ambulance":
+          window.location.href = "/hospital-ambulances";
+          break;
+        case "staff":
+          window.location.href = "/hospital-staff";
+          break;
+        case "inventory":
+          window.location.href = "/hospital-inventory";
+          break;
+        default:
+          console.log("Notification clicked:", notification);
+      }
+    } catch (error) {
+      console.error("Error handling notification click:", error);
+    }
+  };
+
+  // Mark all notifications as read
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch("/api/notifications/mark-all-read", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        // Update local state to mark all as read
+        setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+        setUnreadCount(0);
+      }
+    } catch (error) {
+      console.error("Error marking notifications as read:", error);
     }
   };
 
@@ -88,187 +187,274 @@ export function HospitalLayout({ children }: HospitalLayoutProps) {
     window.location.href = "/login";
   };
 
-  const isActive = (path: string) => location.pathname === path;
-
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } fixed left-0 top-0 z-30 h-full w-64 bg-white shadow-lg transition-transform duration-300 lg:translate-x-0 lg:static`}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-200 ease-in-out lg:translate-x-0 flex flex-col`}
       >
-        <div className="flex flex-col h-full">
-          {/* Logo/Header */}
-          <div className="p-4 border-b">
-            <h1 className="text-xl font-bold text-blue-600 flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
+        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 flex-shrink-0">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <MapPin className="w-5 h-5 text-white" />
+            </div>
+            <span className="ml-2 text-xl font-bold text-gray-900">
               Hospital
-            </h1>
-            <p className="text-xs text-gray-500 mt-1">{hospitalName}</p>
+            </span>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
 
-          {/* Navigation Items */}
-          <nav className="flex-1 overflow-y-auto p-4">
-            <ul className="space-y-2">
-              {sidebarItems.map((item) => (
-                <li key={item.path}>
-                  <Link
-                    to={item.path}
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                      isActive(item.path)
-                        ? "bg-blue-100 text-blue-600 font-medium"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Logout Button */}
-          <div className="p-4 border-t">
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
+        <div className="p-4 border-b border-gray-200 bg-primary/5 flex-shrink-0">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="font-medium text-gray-900">{hospitalName}</div>
+              <div className="text-sm text-primary">Hospital Admin</div>
+            </div>
           </div>
         </div>
-      </aside>
 
-      {/* Mobile Sidebar Overlay */}
+        <div className="flex-1 overflow-y-auto">
+          <nav className="mt-6">
+            {sidebarItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center px-6 py-3 text-sm font-medium transition-colors hover:bg-gray-100 ${
+                    isActive
+                      ? "text-primary bg-primary/10 border-r-2 border-primary"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <item.icon className="w-5 h-5 mr-3" />
+                  {item.label}
+                </Link>
+              );
+            })}
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center px-6 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors mt-4"
+            >
+              <LogOut className="w-5 h-5 mr-3" />
+              Logout
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Navigation */}
-        <header className="bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
-            >
-              {sidebarOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
-            <h2 className="text-2xl font-bold text-gray-800 hidden sm:block">
-              {hospitalName}
-            </h2>
-          </div>
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
+        {/* Top navbar */}
+        <header className="bg-white shadow-sm border-b border-gray-200 h-16 flex-shrink-0">
+          <div className="flex items-center justify-between h-full px-6">
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden mr-4"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
 
-          {/* Right Side */}
-          <div className="flex items-center gap-4">
-            {/* Search */}
-            <div className="hidden sm:flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
-              <Search className="w-4 h-4 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="bg-transparent outline-none text-sm w-32"
-              />
+              {/* Search bar */}
+              <div className="relative hidden md:block">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search hospitals, staff..."
+                  className="pl-10 pr-4 py-2 w-80 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
             </div>
 
-            {/* Notifications */}
-            <div className="relative">
-              <button
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Bell className="w-5 h-5 text-gray-600" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Notifications Dropdown */}
-              {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
-                  <div className="p-4 border-b font-semibold">Notifications</div>
-                  {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-gray-500">
-                      No notifications
-                    </div>
-                  ) : (
-                    <div className="divide-y">
-                      {notifications.map((notif) => (
-                        <div
-                          key={notif.id}
-                          className="p-4 hover:bg-gray-50 cursor-pointer"
-                        >
-                          <p className="font-medium text-sm">{notif.title}</p>
-                          <p className="text-sm text-gray-600">{notif.message}</p>
-                          <p className="text-xs text-gray-400 mt-1">{notif.time}</p>
-                        </div>
-                      ))}
-                    </div>
+            <div className="flex items-center space-x-4">
+              {/* Notifications */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative"
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-medium">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
                   )}
-                </div>
-              )}
-            </div>
+                </Button>
 
-            {/* Profile Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-600" />
-              </button>
+                {notificationsOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setNotificationsOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
+                      <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Notifications
+                        </h3>
+                        {unreadCount > 0 && (
+                          <span className="text-sm text-blue-600 font-medium">
+                            {unreadCount} new
+                          </span>
+                        )}
+                      </div>
 
-              {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200">
-                  <div className="p-4 border-b">
-                    <p className="font-medium text-sm">{userName}</p>
-                    <p className="text-xs text-gray-500">Hospital Admin</p>
+                      <div className="max-h-80 overflow-y-auto">
+                        {notificationsLoading ? (
+                          <div className="px-4 py-8 text-center text-gray-500">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
+                            <p>Loading notifications...</p>
+                          </div>
+                        ) : notifications.length === 0 ? (
+                          <div className="px-4 py-8 text-center text-gray-500">
+                            <Bell className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                            <p>No notifications</p>
+                          </div>
+                        ) : (
+                          notifications.map((notification) => (
+                            <div
+                              key={notification.id}
+                              className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
+                                notification.unread ? "bg-blue-50" : ""
+                              }`}
+                              onClick={() =>
+                                handleNotificationClick(notification)
+                              }
+                            >
+                              <div className="flex items-start space-x-3">
+                                <div className="flex-shrink-0 mt-1">
+                                  {getNotificationIcon(notification.type)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between">
+                                    <p
+                                      className={`text-sm font-medium text-gray-900 truncate ${
+                                        notification.unread
+                                          ? "font-semibold"
+                                          : ""
+                                      }`}
+                                    >
+                                      {notification.title}
+                                    </p>
+                                    {notification.unread && (
+                                      <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 ml-2"></div>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                    {notification.message}
+                                  </p>
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    {notification.time}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                        <div className="flex items-center justify-between">
+                          {unreadCount > 0 && (
+                            <button
+                              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                              onClick={markAllAsRead}
+                            >
+                              Mark all as read
+                            </button>
+                          )}
+                          <button
+                            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                            onClick={() => setNotificationsOpen(false)}
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Profile dropdown */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center space-x-2"
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                >
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
                   </div>
-                  <Link
-                    to="/hospital-profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    View Profile
-                  </Link>
-                  <Link
-                    to="/hospital-settings"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    Settings
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
+                  <span className="hidden md:block text-sm font-medium">
+                    {userName}
+                  </span>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+
+                {profileDropdownOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                      <Link
+                        to="/hospital-profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        to="/hospital-settings"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Settings
+                      </Link>
+                      <div className="border-t border-gray-100"></div>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-          {children}
-        </main>
+        {/* Page content */}
+        <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
     </div>
   );
