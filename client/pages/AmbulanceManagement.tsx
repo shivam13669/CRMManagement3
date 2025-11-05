@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Layout } from "../components/Layout";
-import { 
-  Truck, 
-  Clock, 
-  User, 
-  Phone, 
-  MapPin, 
+import {
+  Truck,
+  Clock,
+  User,
+  Phone,
+  MapPin,
   AlertTriangle,
   CheckCircle,
   RefreshCw,
@@ -14,7 +14,8 @@ import {
   Search,
   Filter,
   Users,
-  Activity
+  Activity,
+  X
 } from "lucide-react";
 import {
   Card,
