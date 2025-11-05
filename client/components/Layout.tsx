@@ -222,6 +222,18 @@ export function Layout({ children }: LayoutProps) {
           </Button>
         </div>
 
+        <div className="p-4 border-b border-gray-200 bg-primary/5 flex-shrink-0">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="font-medium text-gray-900">Admin</div>
+              <div className="text-sm text-primary">Administrator</div>
+            </div>
+          </div>
+        </div>
+
         <div className="flex-1 overflow-y-auto">
           <nav className="mt-6">
             {sidebarItems.map((item) => {
