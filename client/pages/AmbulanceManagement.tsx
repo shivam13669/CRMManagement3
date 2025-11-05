@@ -619,14 +619,6 @@ export default function AmbulanceManagement() {
                           {selectedRequest.patient_email}
                         </span>
                       </div>
-                      <div>
-                        <span className="font-medium text-blue-800">
-                          Phone:{" "}
-                        </span>
-                        <span className="text-blue-700">
-                          {selectedRequest.patient_phone}
-                        </span>
-                      </div>
 
                       {/* Age & Gender */}
                       {(selectedRequest.patient_age || selectedRequest.patient_gender) && (
