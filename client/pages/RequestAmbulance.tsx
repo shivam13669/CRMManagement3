@@ -137,7 +137,7 @@ export default function RequestAmbulance() {
                   <div>
                     <span className="text-sm text-gray-600">Request ID:</span>
                     <div className="font-bold">
-                      AMB-{Date.now().toString().slice(-6)}
+                      {requestId ? `AMB-${requestId}` : `AMB-${Date.now().toString().slice(-6)}`}
                     </div>
                   </div>
                   <div>
