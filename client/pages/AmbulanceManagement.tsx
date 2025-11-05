@@ -521,7 +521,13 @@ export default function AmbulanceManagement() {
         )}
 
         {/* Modal for Request Details */}
-        <Dialog open={modalOpen} onOpenChange={(open) => { setModalOpen(open); if(!open) setSelectedRequest(null); }}>
+        <Dialog
+          open={modalOpen}
+          onOpenChange={(open) => {
+            setModalOpen(open);
+            if (!open) setSelectedRequest(null);
+          }}
+        >
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Request Details</DialogTitle>
@@ -536,7 +542,8 @@ export default function AmbulanceManagement() {
                 <>
                   <div>
                     <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                      Request #{selectedRequest.id} - {selectedRequest.emergency_type}
+                      Request #{selectedRequest.id} -{" "}
+                      {selectedRequest.emergency_type}
                     </h3>
                     <div className="flex items-center gap-3">
                       {getStatusIcon(selectedRequest.status)}
@@ -560,25 +567,50 @@ export default function AmbulanceManagement() {
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <div className="flex items-center space-x-2 mb-3">
                       <Users className="w-5 h-5 text-blue-600" />
-                      <span className="font-semibold text-blue-900">Patient Information</span>
+                      <span className="font-semibold text-blue-900">
+                        Patient Information
+                      </span>
                     </div>
                     <div className="space-y-2">
                       <div>
-                        <span className="font-medium text-blue-800">Name: </span>
-                        <span className="text-blue-700">{selectedRequest.patient_name}</span>
+                        <span className="font-medium text-blue-800">
+                          Name:{" "}
+                        </span>
+                        <span className="text-blue-700">
+                          {selectedRequest.patient_name}
+                        </span>
                       </div>
                       <div>
-                        <span className="font-medium text-blue-800">Email: </span>
-                        <span className="text-blue-700">{selectedRequest.patient_email}</span>
+                        <span className="font-medium text-blue-800">
+                          Email:{" "}
+                        </span>
+                        <span className="text-blue-700">
+                          {selectedRequest.patient_email}
+                        </span>
                       </div>
                       <div>
-                        <span className="font-medium text-blue-800">Phone: </span>
-                        <span className="text-blue-700">{selectedRequest.patient_phone}</span>
+                        <span className="font-medium text-blue-800">
+                          Phone:{" "}
+                        </span>
+                        <span className="text-blue-700">
+                          {selectedRequest.patient_phone}
+                        </span>
                       </div>
                       <div>
-                        <span className="font-medium text-blue-800">Contact: </span>
-                        <span className="text-blue-700">{selectedRequest.contact_number}</span>
-                        <Button size="sm" variant="outline" className="h-6 px-2 text-xs ml-2" onClick={() => window.open(`tel:${selectedRequest.contact_number}`)}>
+                        <span className="font-medium text-blue-800">
+                          Contact:{" "}
+                        </span>
+                        <span className="text-blue-700">
+                          {selectedRequest.contact_number}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-6 px-2 text-xs ml-2"
+                          onClick={() =>
+                            window.open(`tel:${selectedRequest.contact_number}`)
+                          }
+                        >
                           Call
                         </Button>
                       </div>
@@ -590,9 +622,13 @@ export default function AmbulanceManagement() {
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
                         <FileText className="w-5 h-5 text-gray-600" />
-                        <span className="font-semibold text-gray-900">Patient Condition</span>
+                        <span className="font-semibold text-gray-900">
+                          Patient Condition
+                        </span>
                       </div>
-                      <p className="text-gray-700">{selectedRequest.patient_condition}</p>
+                      <p className="text-gray-700">
+                        {selectedRequest.patient_condition}
+                      </p>
                     </div>
                   )}
 
@@ -601,18 +637,26 @@ export default function AmbulanceManagement() {
                     <div>
                       <div className="flex items-center space-x-2 mb-1">
                         <MapPin className="w-4 h-4 text-gray-500" />
-                        <span className="font-medium text-gray-900">Pickup Address</span>
+                        <span className="font-medium text-gray-900">
+                          Pickup Address
+                        </span>
                       </div>
-                      <p className="text-gray-600 ml-6">{selectedRequest.pickup_address}</p>
+                      <p className="text-gray-600 ml-6">
+                        {selectedRequest.pickup_address}
+                      </p>
                     </div>
 
                     {selectedRequest.destination_address && (
                       <div>
                         <div className="flex items-center space-x-2 mb-1">
                           <MapPin className="w-4 h-4 text-blue-500" />
-                          <span className="font-medium text-gray-900">Destination</span>
+                          <span className="font-medium text-gray-900">
+                            Destination
+                          </span>
                         </div>
-                        <p className="text-gray-600 ml-6">{selectedRequest.destination_address}</p>
+                        <p className="text-gray-600 ml-6">
+                          {selectedRequest.destination_address}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -624,18 +668,37 @@ export default function AmbulanceManagement() {
                       <div className="bg-green-50 p-4 rounded-lg">
                         <div className="flex items-center space-x-2 mb-3">
                           <User className="w-5 h-5 text-green-600" />
-                          <span className="font-semibold text-green-900">Assigned Staff</span>
+                          <span className="font-semibold text-green-900">
+                            Assigned Staff
+                          </span>
                         </div>
                         <div className="space-y-2">
                           <div>
-                            <span className="font-medium text-green-800">Name: </span>
-                            <span className="text-green-700">{selectedRequest.assigned_staff_name}</span>
+                            <span className="font-medium text-green-800">
+                              Name:{" "}
+                            </span>
+                            <span className="text-green-700">
+                              {selectedRequest.assigned_staff_name}
+                            </span>
                           </div>
                           {selectedRequest.assigned_staff_phone && (
                             <div>
-                              <span className="font-medium text-green-800">Phone: </span>
-                              <span className="text-green-700">{selectedRequest.assigned_staff_phone}</span>
-                              <Button size="sm" variant="outline" className="h-6 px-2 text-xs ml-2" onClick={() => window.open(`tel:${selectedRequest.assigned_staff_phone}`)}>
+                              <span className="font-medium text-green-800">
+                                Phone:{" "}
+                              </span>
+                              <span className="text-green-700">
+                                {selectedRequest.assigned_staff_phone}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-xs ml-2"
+                                onClick={() =>
+                                  window.open(
+                                    `tel:${selectedRequest.assigned_staff_phone}`,
+                                  )
+                                }
+                              >
                                 Call
                               </Button>
                             </div>
@@ -652,7 +715,9 @@ export default function AmbulanceManagement() {
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center space-x-2 mb-2">
                           <FileText className="w-5 h-5 text-gray-600" />
-                          <span className="font-semibold text-gray-900">Staff Notes</span>
+                          <span className="font-semibold text-gray-900">
+                            Staff Notes
+                          </span>
                         </div>
                         <p className="text-gray-700">{selectedRequest.notes}</p>
                       </div>
@@ -661,22 +726,40 @@ export default function AmbulanceManagement() {
 
                   {/* Status Progress */}
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <span className="text-sm font-medium text-gray-900 block mb-3">Status Progress</span>
+                    <span className="text-sm font-medium text-gray-900 block mb-3">
+                      Status Progress
+                    </span>
                     <div className="flex items-center space-x-4">
-                      <div className={`flex items-center space-x-2 ${["pending", "assigned", "on_the_way", "completed"].includes(selectedRequest.status) ? "text-blue-600" : "text-gray-400"}`}>
-                        <div className={`w-2 h-2 rounded-full ${selectedRequest.status === "pending" || selectedRequest.status === "assigned" || selectedRequest.status === "on_the_way" || selectedRequest.status === "completed" ? "bg-blue-600" : "bg-gray-300"}`}></div>
+                      <div
+                        className={`flex items-center space-x-2 ${["pending", "assigned", "on_the_way", "completed"].includes(selectedRequest.status) ? "text-blue-600" : "text-gray-400"}`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${selectedRequest.status === "pending" || selectedRequest.status === "assigned" || selectedRequest.status === "on_the_way" || selectedRequest.status === "completed" ? "bg-blue-600" : "bg-gray-300"}`}
+                        ></div>
                         <span className="text-xs font-medium">Requested</span>
                       </div>
-                      <div className={`flex items-center space-x-2 ${["assigned", "on_the_way", "completed"].includes(selectedRequest.status) ? "text-blue-600" : "text-gray-400"}`}>
-                        <div className={`w-2 h-2 rounded-full ${selectedRequest.status === "assigned" || selectedRequest.status === "on_the_way" || selectedRequest.status === "completed" ? "bg-blue-600" : "bg-gray-300"}`}></div>
+                      <div
+                        className={`flex items-center space-x-2 ${["assigned", "on_the_way", "completed"].includes(selectedRequest.status) ? "text-blue-600" : "text-gray-400"}`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${selectedRequest.status === "assigned" || selectedRequest.status === "on_the_way" || selectedRequest.status === "completed" ? "bg-blue-600" : "bg-gray-300"}`}
+                        ></div>
                         <span className="text-xs font-medium">Assigned</span>
                       </div>
-                      <div className={`flex items-center space-x-2 ${["on_the_way", "completed"].includes(selectedRequest.status) ? "text-orange-600" : "text-gray-400"}`}>
-                        <div className={`w-2 h-2 rounded-full ${selectedRequest.status === "on_the_way" || selectedRequest.status === "completed" ? "bg-orange-600" : "bg-gray-300"}`}></div>
+                      <div
+                        className={`flex items-center space-x-2 ${["on_the_way", "completed"].includes(selectedRequest.status) ? "text-orange-600" : "text-gray-400"}`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${selectedRequest.status === "on_the_way" || selectedRequest.status === "completed" ? "bg-orange-600" : "bg-gray-300"}`}
+                        ></div>
                         <span className="text-xs font-medium">On The Way</span>
                       </div>
-                      <div className={`flex items-center space-x-2 ${selectedRequest.status === "completed" ? "text-green-600" : "text-gray-400"}`}>
-                        <div className={`w-2 h-2 rounded-full ${selectedRequest.status === "completed" ? "bg-green-600" : "bg-gray-300"}`}></div>
+                      <div
+                        className={`flex items-center space-x-2 ${selectedRequest.status === "completed" ? "text-green-600" : "text-gray-400"}`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${selectedRequest.status === "completed" ? "bg-green-600" : "bg-gray-300"}`}
+                        ></div>
                         <span className="text-xs font-medium">Completed</span>
                       </div>
                     </div>
@@ -686,7 +769,15 @@ export default function AmbulanceManagement() {
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => { setModalOpen(false); setSelectedRequest(null); }}>Close</Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setModalOpen(false);
+                  setSelectedRequest(null);
+                }}
+              >
+                Close
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
