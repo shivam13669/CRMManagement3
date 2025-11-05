@@ -15,7 +15,7 @@ import {
   Filter,
   Users,
   Activity,
-  X
+  X,
 } from "lucide-react";
 import {
   Card,
@@ -56,30 +56,33 @@ interface AmbulanceRequest {
 
 export default function AmbulanceManagement() {
   const [requests, setRequests] = useState<AmbulanceRequest[]>([]);
-  const [filteredRequests, setFilteredRequests] = useState<AmbulanceRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<AmbulanceRequest[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
-  const [selectedRequest, setSelectedRequest] = useState<AmbulanceRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<AmbulanceRequest | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   const fetchRequests = async (showRefreshing = false) => {
     try {
       if (showRefreshing) setRefreshing(true);
-      
-      const token = localStorage.getItem('authToken');
+
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        console.error('No token found');
+        console.error("No token found");
         return;
       }
 
-      const response = await fetch('/api/ambulance', {
+      const response = await fetch("/api/ambulance", {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
@@ -87,10 +90,10 @@ export default function AmbulanceManagement() {
         setRequests(data.requests || []);
         setFilteredRequests(data.requests || []);
       } else {
-        console.error('Failed to fetch ambulance requests:', response.status);
+        console.error("Failed to fetch ambulance requests:", response.status);
       }
     } catch (error) {
-      console.error('Error fetching ambulance requests:', error);
+      console.error("Error fetching ambulance requests:", error);
     } finally {
       setLoading(false);
       if (showRefreshing) setRefreshing(false);
@@ -99,7 +102,7 @@ export default function AmbulanceManagement() {
 
   useEffect(() => {
     fetchRequests();
-    
+
     // Set up auto-refresh every 30 seconds for real-time updates
     const interval = setInterval(() => {
       fetchRequests();
@@ -113,20 +116,29 @@ export default function AmbulanceManagement() {
     let filtered = requests;
 
     if (searchTerm) {
-      filtered = filtered.filter(request =>
-        request.patient_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.emergency_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.pickup_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.id.toString().includes(searchTerm)
+      filtered = filtered.filter(
+        (request) =>
+          request.patient_name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          request.emergency_type
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          request.pickup_address
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          request.id.toString().includes(searchTerm),
       );
     }
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter(request => request.status === statusFilter);
+      filtered = filtered.filter((request) => request.status === statusFilter);
     }
 
     if (priorityFilter !== "all") {
-      filtered = filtered.filter(request => request.priority === priorityFilter);
+      filtered = filtered.filter(
+        (request) => request.priority === priorityFilter,
+      );
     }
 
     setFilteredRequests(filtered);
@@ -134,16 +146,36 @@ export default function AmbulanceManagement() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'assigned':
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Assigned</Badge>;
-      case 'on_the_way':
-        return <Badge variant="secondary" className="bg-orange-100 text-orange-800">On The Way</Badge>;
-      case 'completed':
-        return <Badge variant="secondary" className="bg-green-100 text-green-800">Completed</Badge>;
-      case 'cancelled':
-        return <Badge variant="secondary" className="bg-red-100 text-red-800">Cancelled</Badge>;
+      case "pending":
+        return (
+          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+            Pending
+          </Badge>
+        );
+      case "assigned":
+        return (
+          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+            Assigned
+          </Badge>
+        );
+      case "on_the_way":
+        return (
+          <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+            On The Way
+          </Badge>
+        );
+      case "completed":
+        return (
+          <Badge variant="secondary" className="bg-green-100 text-green-800">
+            Completed
+          </Badge>
+        );
+      case "cancelled":
+        return (
+          <Badge variant="secondary" className="bg-red-100 text-red-800">
+            Cancelled
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">Unknown</Badge>;
     }
@@ -151,14 +183,26 @@ export default function AmbulanceManagement() {
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'critical':
+      case "critical":
         return <Badge variant="destructive">Critical</Badge>;
-      case 'high':
-        return <Badge variant="secondary" className="bg-red-100 text-red-800">High</Badge>;
-      case 'normal':
-        return <Badge variant="secondary" className="bg-gray-100 text-gray-800">Normal</Badge>;
-      case 'low':
-        return <Badge variant="secondary" className="bg-green-100 text-green-800">Low</Badge>;
+      case "high":
+        return (
+          <Badge variant="secondary" className="bg-red-100 text-red-800">
+            High
+          </Badge>
+        );
+      case "normal":
+        return (
+          <Badge variant="secondary" className="bg-gray-100 text-gray-800">
+            Normal
+          </Badge>
+        );
+      case "low":
+        return (
+          <Badge variant="secondary" className="bg-green-100 text-green-800">
+            Low
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">Normal</Badge>;
     }
@@ -166,13 +210,13 @@ export default function AmbulanceManagement() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending':
+      case "pending":
         return <Clock className="w-4 h-4 text-yellow-600" />;
-      case 'assigned':
+      case "assigned":
         return <User className="w-4 h-4 text-blue-600" />;
-      case 'on_the_way':
+      case "on_the_way":
         return <Truck className="w-4 h-4 text-orange-600" />;
-      case 'completed':
+      case "completed":
         return <CheckCircle className="w-4 h-4 text-green-600" />;
       default:
         return <Clock className="w-4 h-4 text-gray-600" />;
@@ -181,39 +225,41 @@ export default function AmbulanceManagement() {
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getTimeAgo = (dateString: string) => {
     const now = new Date();
     const past = new Date(dateString);
-    const diffInMinutes = Math.floor((now.getTime() - past.getTime()) / (1000 * 60));
+    const diffInMinutes = Math.floor(
+      (now.getTime() - past.getTime()) / (1000 * 60),
+    );
 
     if (diffInMinutes < 60) {
       return `${diffInMinutes} minutes ago`;
     } else if (diffInMinutes < 1440) {
       const hours = Math.floor(diffInMinutes / 60);
-      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      return `${hours} hour${hours > 1 ? "s" : ""} ago`;
     } else {
       const days = Math.floor(diffInMinutes / 1440);
-      return `${days} day${days > 1 ? 's' : ''} ago`;
+      return `${days} day${days > 1 ? "s" : ""} ago`;
     }
   };
 
   // Get summary statistics
   const stats = {
     total: requests.length,
-    pending: requests.filter(r => r.status === 'pending').length,
-    assigned: requests.filter(r => r.status === 'assigned').length,
-    onTheWay: requests.filter(r => r.status === 'on_the_way').length,
-    completed: requests.filter(r => r.status === 'completed').length,
-    critical: requests.filter(r => r.priority === 'critical').length
+    pending: requests.filter((r) => r.status === "pending").length,
+    assigned: requests.filter((r) => r.status === "assigned").length,
+    onTheWay: requests.filter((r) => r.status === "on_the_way").length,
+    completed: requests.filter((r) => r.status === "completed").length,
+    critical: requests.filter((r) => r.priority === "critical").length,
   };
 
   if (loading) {
@@ -221,7 +267,9 @@ export default function AmbulanceManagement() {
       <Layout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span className="ml-2 text-gray-600">Loading ambulance requests...</span>
+          <span className="ml-2 text-gray-600">
+            Loading ambulance requests...
+          </span>
         </div>
       </Layout>
     );
@@ -233,15 +281,21 @@ export default function AmbulanceManagement() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Ambulance Management</h1>
-            <p className="text-gray-600 mt-1">Manage and monitor all emergency ambulance requests</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Ambulance Management
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Manage and monitor all emergency ambulance requests
+            </p>
           </div>
           <Button
             onClick={() => fetchRequests(true)}
             disabled={refreshing}
             className="flex items-center space-x-2"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+            />
             <span>Refresh</span>
           </Button>
         </div>
@@ -254,67 +308,81 @@ export default function AmbulanceManagement() {
                 <Activity className="w-5 h-5 text-blue-600" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stats.total}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <Clock className="w-5 h-5 text-yellow-600" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                  <p className="text-2xl font-bold text-yellow-600">
+                    {stats.pending}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <User className="w-5 h-5 text-blue-600" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Assigned</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.assigned}</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {stats.assigned}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <Truck className="w-5 h-5 text-orange-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-600">On The Way</p>
-                  <p className="text-2xl font-bold text-orange-600">{stats.onTheWay}</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    On The Way
+                  </p>
+                  <p className="text-2xl font-bold text-orange-600">
+                    {stats.onTheWay}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Completed</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {stats.completed}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-5 h-5 text-red-600" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Critical</p>
-                  <p className="text-2xl font-bold text-red-600">{stats.critical}</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {stats.critical}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -334,7 +402,7 @@ export default function AmbulanceManagement() {
                   className="pl-10"
                 />
               </div>
-              
+
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Filter by status" />
@@ -348,7 +416,7 @@ export default function AmbulanceManagement() {
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Filter by priority" />
@@ -371,7 +439,9 @@ export default function AmbulanceManagement() {
             <CardContent className="py-12 text-center">
               <Truck className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {requests.length === 0 ? "No Ambulance Requests" : "No Matching Requests"}
+                {requests.length === 0
+                  ? "No Ambulance Requests"
+                  : "No Matching Requests"}
               </h3>
               <p className="text-gray-600">
                 {requests.length === 0
@@ -419,7 +489,9 @@ export default function AmbulanceManagement() {
 
                   <div className="flex items-center space-x-2">
                     <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                    <span className="text-gray-700">{request.contact_number}</span>
+                    <span className="text-gray-700">
+                      {request.contact_number}
+                    </span>
                   </div>
 
                   <div className="flex items-start space-x-2">
@@ -470,7 +542,8 @@ export default function AmbulanceManagement() {
                 {/* Header Info */}
                 <div>
                   <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                    Request #{selectedRequest.id} - {selectedRequest.emergency_type}
+                    Request #{selectedRequest.id} -{" "}
+                    {selectedRequest.emergency_type}
                   </h3>
                   <div className="flex items-center gap-3">
                     {getStatusIcon(selectedRequest.status)}
@@ -501,19 +574,29 @@ export default function AmbulanceManagement() {
                   <div className="space-y-2">
                     <div>
                       <span className="font-medium text-blue-800">Name: </span>
-                      <span className="text-blue-700">{selectedRequest.patient_name}</span>
+                      <span className="text-blue-700">
+                        {selectedRequest.patient_name}
+                      </span>
                     </div>
                     <div>
                       <span className="font-medium text-blue-800">Email: </span>
-                      <span className="text-blue-700">{selectedRequest.patient_email}</span>
+                      <span className="text-blue-700">
+                        {selectedRequest.patient_email}
+                      </span>
                     </div>
                     <div>
                       <span className="font-medium text-blue-800">Phone: </span>
-                      <span className="text-blue-700">{selectedRequest.patient_phone}</span>
+                      <span className="text-blue-700">
+                        {selectedRequest.patient_phone}
+                      </span>
                     </div>
                     <div>
-                      <span className="font-medium text-blue-800">Contact: </span>
-                      <span className="text-blue-700">{selectedRequest.contact_number}</span>
+                      <span className="font-medium text-blue-800">
+                        Contact:{" "}
+                      </span>
+                      <span className="text-blue-700">
+                        {selectedRequest.contact_number}
+                      </span>
                       <Button
                         size="sm"
                         variant="outline"
@@ -537,7 +620,9 @@ export default function AmbulanceManagement() {
                         Patient Condition
                       </span>
                     </div>
-                    <p className="text-gray-700">{selectedRequest.patient_condition}</p>
+                    <p className="text-gray-700">
+                      {selectedRequest.patient_condition}
+                    </p>
                   </div>
                 )}
 

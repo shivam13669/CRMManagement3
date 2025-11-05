@@ -100,14 +100,19 @@ export default function RequestAmbulance() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create ambulance request");
+        throw new Error(
+          errorData.error || "Failed to create ambulance request",
+        );
       }
 
       const data = await response.json();
-      setRequestId(data.requestId?.toString() || `AMB-${Date.now().toString().slice(-6)}`);
+      setRequestId(
+        data.requestId?.toString() || `AMB-${Date.now().toString().slice(-6)}`,
+      );
       setIsSubmitted(true);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
       console.error("Error submitting ambulance request:", err);
     } finally {
@@ -137,7 +142,9 @@ export default function RequestAmbulance() {
                   <div>
                     <span className="text-sm text-gray-600">Request ID:</span>
                     <div className="font-bold">
-                      {requestId ? `AMB-${requestId}` : `AMB-${Date.now().toString().slice(-6)}`}
+                      {requestId
+                        ? `AMB-${requestId}`
+                        : `AMB-${Date.now().toString().slice(-6)}`}
                     </div>
                   </div>
                   <div>
