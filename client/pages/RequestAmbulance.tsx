@@ -92,6 +92,7 @@ export default function RequestAmbulance() {
         body: JSON.stringify({
           emergency_type: formData.emergencyType,
           contact_number: formData.contactNumber,
+          customer_email: formData.email || undefined,
           pickup_address: formData.address,
           destination_address: formData.landmark || "Not specified",
           customer_condition: formData.description,
