@@ -184,6 +184,12 @@ function createTables(): void {
         pickup_address TEXT NOT NULL,
         destination_address TEXT NOT NULL,
         emergency_type TEXT NOT NULL,
+        -- patient fields (filled by customer on request form)
+        patient_name TEXT,
+        patient_age INTEGER,
+        patient_gender TEXT,
+        patient_email TEXT,
+        patient_phone TEXT,
         customer_condition TEXT,
         contact_number TEXT NOT NULL,
         status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'assigned', 'on_the_way', 'completed', 'cancelled')),
@@ -196,6 +202,34 @@ function createTables(): void {
         FOREIGN KEY (assigned_staff_id) REFERENCES users (id) ON DELETE SET NULL
       )
     `);
+
+    // Ensure older databases gain the new patient_* columns (ALTER TABLE safely if missing)
+    try {
+      const tableInfo = db.exec("PRAGMA table_info(ambulance_requests)");
+      if (tableInfo.length > 0) {
+        const cols = tableInfo[0].values.map((r) => r[1]);
+        const requiredCols = [
+          { name: 'patient_name', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_name TEXT" },
+          { name: 'patient_age', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_age INTEGER" },
+          { name: 'patient_gender', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_gender TEXT" },
+          { name: 'patient_email', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_email TEXT" },
+          { name: 'patient_phone', sql: "ALTER TABLE ambulance_requests ADD COLUMN patient_phone TEXT" },
+        ];
+
+        requiredCols.forEach((col) => {
+          if (!cols.includes(col.name)) {
+            try {
+              db.run(col.sql);
+              console.log(`✅ Added column ${col.name} to ambulance_requests`);
+            } catch (err) {
+              console.warn(`⚠️ Could not add column ${col.name}:`, err);
+            }
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Error while ensuring ambulance_requests columns:', err);
+    }
 
     // Pending registrations table - for doctor/staff approval
     db.run(`

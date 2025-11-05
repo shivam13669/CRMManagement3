@@ -7,6 +7,12 @@ export interface AmbulanceRequest {
   pickup_address: string;
   destination_address: string;
   emergency_type: string;
+  // Patient fields submitted in the ambulance request form
+  patient_name?: string;
+  patient_age?: number | null;
+  patient_gender?: string | null;
+  patient_email?: string | null;
+  patient_phone?: string | null;
   customer_condition?: string;
   contact_number: string;
   status?: string;
@@ -14,6 +20,12 @@ export interface AmbulanceRequest {
   assigned_staff_id?: number;
   notes?: string;
   created_at?: string;
+  // Customer account info (joined when returning requests)
+  customer_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
+  assigned_staff_name?: string;
+  assigned_staff_phone?: string;
 }
 
 // Create ambulance request (for customers)
@@ -34,6 +46,11 @@ export const handleCreateAmbulanceRequest: RequestHandler = async (
       pickup_address,
       destination_address,
       emergency_type,
+      patient_name,
+      patient_age,
+      patient_gender,
+      patient_email,
+      patient_phone,
       customer_condition,
       contact_number,
       priority = "normal",
@@ -48,19 +65,25 @@ export const handleCreateAmbulanceRequest: RequestHandler = async (
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Insert ambulance request
+    // Insert ambulance request (including patient fields)
     db.run(
       `
       INSERT INTO ambulance_requests (
         customer_user_id, pickup_address, destination_address, emergency_type,
+        patient_name, patient_age, patient_gender, patient_email, patient_phone,
         customer_condition, contact_number, priority, status, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
     `,
       [
         userId,
         pickup_address,
         destination_address,
         emergency_type,
+        patient_name || null,
+        patient_age || null,
+        patient_gender || null,
+        patient_email || null,
+        patient_phone || null,
         customer_condition || null,
         contact_number,
         priority,
@@ -102,15 +125,20 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
         ar.pickup_address,
         ar.destination_address,
         ar.emergency_type,
+        ar.patient_name,
+        ar.patient_age,
+        ar.patient_gender,
+        ar.patient_email,
+        ar.patient_phone,
         ar.customer_condition,
         ar.contact_number,
         ar.status,
         ar.priority,
         ar.notes,
         ar.created_at,
-        u.full_name as patient_name,
-        u.email as patient_email,
-        u.phone as patient_phone,
+        u.full_name as customer_name,
+        u.email as customer_email,
+        u.phone as customer_phone,
         staff.full_name as assigned_staff_name,
         staff.phone as assigned_staff_phone
       FROM ambulance_requests ar
@@ -226,6 +254,11 @@ export const handleGetCustomerAmbulanceRequests: RequestHandler = async (
         ar.pickup_address,
         ar.destination_address,
         ar.emergency_type,
+        ar.patient_name,
+        ar.patient_age,
+        ar.patient_gender,
+        ar.patient_email,
+        ar.patient_phone,
         ar.customer_condition,
         ar.contact_number,
         ar.status,
