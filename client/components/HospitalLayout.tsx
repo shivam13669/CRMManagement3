@@ -15,6 +15,9 @@ import {
   LogOut,
   Settings,
   MapPin,
+  Calendar,
+  FileText,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "./ui/button";
 
