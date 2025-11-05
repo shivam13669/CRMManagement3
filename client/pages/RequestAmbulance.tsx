@@ -338,6 +338,23 @@ export default function RequestAmbulance() {
                   </div>
 
                   <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
+                      className="mt-1"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+
+                  <div>
                     <Label htmlFor="address">Complete Address</Label>
                     <Textarea
                       id="address"
