@@ -91,8 +91,14 @@ export default function RequestAmbulance() {
         },
         body: JSON.stringify({
           emergency_type: formData.emergencyType,
+          // patient details from the form
+          patient_name: formData.patientName,
+          patient_age: formData.patientAge || null,
+          patient_gender: formData.patientGender || null,
+          patient_email: formData.email || null,
+          patient_phone: formData.contactNumber || null,
+          // legacy/emergency contact
           contact_number: formData.contactNumber,
-          customer_email: formData.email || undefined,
           pickup_address: formData.address,
           destination_address: formData.landmark || "Not specified",
           customer_condition: formData.description,

@@ -46,20 +46,29 @@ import {
 
 interface AmbulanceRequest {
   id: number;
+  customer_user_id?: number;
   pickup_address: string;
   destination_address: string;
   emergency_type: string;
-  patient_condition: string;
-  contact_number: string;
+  // Patient details filled in the request form
+  patient_name?: string | null;
+  patient_email?: string | null;
+  patient_phone?: string | null;
+  patient_age?: number | string | null;
+  patient_gender?: string | null;
+  patient_condition?: string | null;
+  contact_number?: string | null;
   status: string;
   priority: string;
-  notes: string;
+  notes?: string | null;
   created_at: string;
-  patient_name: string;
-  patient_email: string;
-  patient_phone: string;
-  assigned_staff_name: string;
+  // Assigned staff
+  assigned_staff_name?: string;
   assigned_staff_phone?: string;
+  // Customer account info (joined from users table)
+  customer_name?: string | null;
+  customer_email?: string | null;
+  customer_phone?: string | null;
 }
 
 export default function AmbulanceManagement() {
@@ -559,6 +568,28 @@ export default function AmbulanceManagement() {
                       {getPriorityBadge(selectedRequest.priority)}
                       {getStatusBadge(selectedRequest.status)}
                     </div>
+
+                    {/* Customer (account) info shown near the header */}
+                    {selectedRequest.customer_name && (
+                      <div className="mt-3 p-3 bg-gray-50 rounded-md">
+                        <div className="text-sm font-medium text-gray-700">
+                          Customer
+                        </div>
+                        <div className="mt-1 text-gray-900 font-semibold">
+                          {selectedRequest.customer_name}
+                        </div>
+                        {selectedRequest.customer_email && (
+                          <div className="text-sm text-gray-600">
+                            {selectedRequest.customer_email}
+                          </div>
+                        )}
+                        {selectedRequest.customer_phone && (
+                          <div className="text-sm text-gray-600">
+                            {selectedRequest.customer_phone}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <Separator />
@@ -588,14 +619,35 @@ export default function AmbulanceManagement() {
                           {selectedRequest.patient_email}
                         </span>
                       </div>
-                      <div>
-                        <span className="font-medium text-blue-800">
-                          Phone:{" "}
-                        </span>
-                        <span className="text-blue-700">
-                          {selectedRequest.patient_phone}
-                        </span>
-                      </div>
+
+                      {/* Age & Gender */}
+                      {(selectedRequest.patient_age ||
+                        selectedRequest.patient_gender) && (
+                        <div>
+                          {selectedRequest.patient_age && (
+                            <div>
+                              <span className="font-medium text-blue-800">
+                                Age:{" "}
+                              </span>
+                              <span className="text-blue-700">
+                                {selectedRequest.patient_age}
+                              </span>
+                            </div>
+                          )}
+
+                          {selectedRequest.patient_gender && (
+                            <div>
+                              <span className="font-medium text-blue-800">
+                                Gender:{" "}
+                              </span>
+                              <span className="text-blue-700">
+                                {selectedRequest.patient_gender}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <div>
                         <span className="font-medium text-blue-800">
                           Contact:{" "}
