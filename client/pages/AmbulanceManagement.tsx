@@ -559,6 +559,28 @@ export default function AmbulanceManagement() {
                       {getPriorityBadge(selectedRequest.priority)}
                       {getStatusBadge(selectedRequest.status)}
                     </div>
+
+                    {/* Customer (account) info shown near the header */}
+                    {selectedRequest.customer_name && (
+                      <div className="mt-3 p-3 bg-gray-50 rounded-md">
+                        <div className="text-sm font-medium text-gray-700">
+                          Customer
+                        </div>
+                        <div className="mt-1 text-gray-900 font-semibold">
+                          {selectedRequest.customer_name}
+                        </div>
+                        {selectedRequest.customer_email && (
+                          <div className="text-sm text-gray-600">
+                            {selectedRequest.customer_email}
+                          </div>
+                        )}
+                        {selectedRequest.customer_phone && (
+                          <div className="text-sm text-gray-600">
+                            {selectedRequest.customer_phone}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <Separator />
